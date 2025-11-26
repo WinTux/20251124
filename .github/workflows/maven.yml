@@ -43,8 +43,7 @@ jobs:
           distribution: temurin
           java-version: 21
       - name: Install Snyk CLI
-        run: |
-          curl -sL https://raw.githubusercontent.com/snyk/snyk-install/master/install.sh | sh
+        run: npm install -g snyk
       - name: Snyk Dependency Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
