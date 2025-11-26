@@ -42,7 +42,20 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      - name: Snyk Scan (Maven dependencies)
+        uses: snyk/actions/maven@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium
 
+      - name: Trivy Filesystem Scan (SAST + config)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          ignore-unfixed: true
+          severity: 'HIGH,CRITICAL'
       # Compila SOLO los módulos microservicios (no proyecto root)
       - name: Compilar modulos sin tests
         run: mvn -B -pl producto-service,orden-service -am clean package -DskipTests
