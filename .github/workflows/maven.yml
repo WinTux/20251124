@@ -59,7 +59,18 @@ jobs:
       # Compila SOLO los módulos microservicios (no proyecto root)
       - name: Compilar modulos sin tests
         run: mvn -B -pl producto-service,orden-service -am clean package -DskipTests
+      # =====================================================
+      # Hardening: OPA/Conftest sobre Dockerfiles
+      # =====================================================
+      - name: Instalando Conftest
+        run: |
+          curl -L https://github.com/open-policy-agent/conftest/releases/download/v0.45.0/conftest_0.45.0_Linux_x86_64.tar.gz \
+          | tar zx && sudo mv conftest /usr/local/bin/
 
+      - name: Security Policy Check (Dockerfile)
+        run: |
+          conftest test producto-service/Dockerfile || true
+          conftest test orden-service/Dockerfile || true
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
       # ───────────────────────────────
