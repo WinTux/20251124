@@ -74,11 +74,22 @@ jobs:
       # =====================================================
       # SBOM (Software Bill of Materials)
       # =====================================================
-      - name: Generate SBOM with Syft
-        uses: anchore/sbom-action@v0.16.0
+      - name: SBOM producto-service
+        uses: anchore/sbom-action@v0
         with:
-          directory: .
-          output-file: sbom-microservices.json
+          path: producto-service
+          format: json
+          output-file: producto-sbom.json
+          upload-artifact: true
+
+      - name: SBOM orden-service
+        uses: anchore/sbom-action@v0
+        with:
+          path: orden-service
+          format: json
+          output-file: orden-sbom.json
+          upload-artifact: true
+
 
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
