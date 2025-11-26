@@ -71,6 +71,15 @@ jobs:
         run: |
           conftest test producto-service/Dockerfile || true
           conftest test orden-service/Dockerfile || true
+      # =====================================================
+      # SBOM (Software Bill of Materials)
+      # =====================================================
+      - name: Generate SBOM with Syft
+        uses: anchore/syft-action@v0.16.0
+        with:
+          directory: .
+          output-file: sbom-microservices.json
+
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
       # ───────────────────────────────
