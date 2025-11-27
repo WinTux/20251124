@@ -1,16 +1,16 @@
 package docker.multistage
 
-deny[msg] {
+deny contains msg if {
     not builder
     msg = "Debe existir un stage de build utilizando Maven."
 }
 
-deny[msg] {
+deny contains msg if {
     not runtime
     msg = "Debe existir un stage de runtime utilizando Eclipse Temurin."
 }
 
-deny[msg] {
+deny contains msg if {
     not copies_from_builder
     msg = "Debe existir COPY --from=builder en el stage final."
 }

@@ -8,7 +8,7 @@ required_port["8082"] {
     contains(input_path, "orden-service")
 }
 
-deny[msg] {
+deny contains msg if {
     some port
     required_port[port]
     not port_exposed(port)
