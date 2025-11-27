@@ -1,10 +1,13 @@
 package docker.multistage
 
-# Debe ser multistage si hay build y runtime
-deny[msg] if not has_multistage {
-    msg := "Dockerfile debería ser multistage"
+# Asegurarse de que se use multistage build
+deny[msg] {
+    not is_multistage
+    msg := "Dockerfile no usa multistage build"
 }
 
-has_multistage contains i if input[i].instruction == "FROM" {
+is_multistage {
     some i
+    input[i].instruction == "FROM"
+    input[i].stage != ""
 }

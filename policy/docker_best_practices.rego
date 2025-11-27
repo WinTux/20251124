@@ -1,17 +1,19 @@
 package docker.bestpractices
 
-# Evita usar la imagen "latest"
-deny[msg] if input[i].instruction == "FROM" {
+# Evitar usar la imagen 'latest'
+deny[msg] {
     some i
+    input[i].instruction == "FROM"
     lower(input[i].value) == "eclipse-temurin:latest"
-    msg := "No uses tag latest en FROM"
+    msg := "No uses tag 'latest' en FROM"
 }
 
-# Revisa que haya al menos un EXPOSE
-deny[msg] if not any_expose {
+# Dockerfile debería exponer al menos un puerto
+deny[msg] {
+    not any_expose
     msg := "Dockerfile no expone puertos"
 }
 
-any_expose contains i if input[i].instruction == "EXPOSE" {
-    some i
+any_expose[i] {
+    input[i].instruction == "EXPOSE"
 }
