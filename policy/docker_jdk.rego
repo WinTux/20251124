@@ -20,5 +20,5 @@ deny[msg] {
 }
 
 contains(str, substr) {
-    index_of(str, substr) != -1
+    regex.match(sprintf(".*%s.*", [regex.escape(substr)]), str)
 }
