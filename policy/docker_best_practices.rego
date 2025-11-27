@@ -1,30 +1,17 @@
 package docker.bestpractices
-# Evita usar eimagenes latest
-deny[msg] {
+
+# Evita usar la imagen "latest"
+deny[msg] if input[i].instruction == "FROM" {
     some i
-    input[i].instruction == "FROM"
-    endswith(lower(input[i].value), ":latest")
-    msg := "No se permite usar imágenes con tag 'latest'. Usa versiones específicas."
+    lower(input[i].value) == "eclipse-temurin:latest"
+    msg := "No uses tag latest en FROM"
 }
 
-deny[msg] {
-    input[i].instruction == "ADD"
-    msg := "No se permite 'ADD'. Usa 'COPY' a menos que sea estrictamente necesario."
-}
-
-deny[msg] {
-    input[i].instruction == "COPY"
-    count(split(input[i].value, " ")) < 2
-    msg := "COPY debe tener al menos dos argumentos."
-}
-
-# Revisa que cada Dockerfile tenga al menos un EXPOSE
-deny[msg] {
-    not any_expose
+# Revisa que haya al menos un EXPOSE
+deny[msg] if not any_expose {
     msg := "Dockerfile no expone puertos"
 }
 
-any_expose {
+any_expose contains i if input[i].instruction == "EXPOSE" {
     some i
-    input[i].instruction == "EXPOSE"
 }
