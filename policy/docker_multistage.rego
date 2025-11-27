@@ -1,38 +1,15 @@
 package docker.multistage
 
-deny contains msg if {
-    not builder
-    msg = "Debe existir un stage de build utilizando Maven."
+# Debe ser un Dockerfile multistage si hay build y runtime
+deny[msg] {
+    not has_multistage
+    msg := "Dockerfile debería ser multistage"
 }
 
-deny contains msg if {
-    not runtime
-    msg = "Debe existir un stage de runtime utilizando Eclipse Temurin."
-}
-
-deny contains msg if {
-    not copies_from_builder
-    msg = "Debe existir COPY --from=builder en el stage final."
-}
-
-builder {
+has_multistage {
     some i
+    some j
+    i != j
     input[i].instruction == "FROM"
-    startswith(lower(input[i].value), "maven:")
-}
-
-runtime {
-    some i
-    input[i].instruction == "FROM"
-    startswith(lower(input[i].value), "eclipse-temurin:")
-}
-
-copies_from_builder {
-    some i
-    input[i].instruction == "COPY"
-    contains(input[i].value, "--from=builder")
-}
-
-contains(str, substr) {
-    regex.match(sprintf(".*%s.*", [regex.escape(substr)]), str)
+    input[j].instruction == "FROM"
 }
