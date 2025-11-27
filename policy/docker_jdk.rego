@@ -1,19 +1,29 @@
 package docker.jdk
 
-# Solo permitir imágenes basadas en JDK 21
 deny contains msg if {
     some i
     input[i].instruction == "FROM"
-    not es_jdk21(input[i].value)
-    msg := sprintf(
-        "La imagen base debe usar JDK 21. Imagen encontrada: %v",
-        [input[i].value]
-    )
+    contains(lower(input[i].value), "jdk-8")
+    msg := "No se permite usar JDK 8"
 }
 
-# Función que valida JDK 21
-es_jdk21(image) if {
-    # ejemplo esperado:
-    # eclipse-temurin:21
-    startswith(lower(image), "eclipse-temurin:21")
+deny contains msg if {
+    some i
+    input[i].instruction == "FROM"
+    contains(lower(input[i].value), "jdk-11")
+    msg := "No se permite usar JDK 11"
+}
+
+deny contains msg if {
+    some i
+    input[i].instruction == "FROM"
+    contains(lower(input[i].value), "jdk-17")
+    msg := "No se permite usar JDK 17"
+}
+
+deny contains msg if {
+    some i
+    input[i].instruction == "FROM"
+    not contains(lower(input[i].value), "jdk-21")
+    msg := sprintf("La imagen base debe ser JDK 21, encontrada: %v", [input[i].value])
 }

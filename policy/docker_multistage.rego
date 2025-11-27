@@ -2,13 +2,11 @@ package docker.multistage
 
 # Asegurarse de que se use multistage build
 deny contains msg if {
-    not is_multistage
-    msg := "Dockerfile no usa multistage build"
+    not es_multistage
+    msg := "Dockerfile no usa multistage build (se requiere más de un FROM)"
 }
 
 # Hay más de un FROM con stage
-is_multistage if {
-    some i
-    input[i].instruction == "FROM"
-    input[i].stage != ""
+es_multistage if {
+    count([x | x := input[_]; x.instruction == "FROM"]) > 1
 }

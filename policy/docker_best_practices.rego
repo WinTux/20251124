@@ -4,14 +4,14 @@ package docker.bestpractices
 deny contains msg if {
     some i
     input[i].instruction == "FROM"
-    lower(input[i].value) == "eclipse-temurin:latest"
-    msg := "No uses tag 'latest' en FROM"
+    endswith(lower(input[i].value), ":latest")
+    msg := "No uses tag 'latest' en la instrucción FROM"
 }
 
 # Dockerfile debería exponer al menos un puerto
 deny contains msg if {
     not any_expose
-    msg := "Dockerfile no expone puertos"
+    msg := "Dockerfile no expone ningún puerto (EXPOSE)"
 }
 
 # Hay al menos un EXPOSE
