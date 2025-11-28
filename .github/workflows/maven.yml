@@ -71,8 +71,9 @@ jobs:
 
       - name: Security Policy Check (Dockerfile)
         run: |
-          conftest test producto-service/Dockerfile || true
-          conftest test orden-service/Dockerfile || true
+          conftest test producto-service/Dockerfile --parser dockerfile
+          conftest test orden-service/Dockerfile --parser dockerfile
+
       # =====================================================
       # SBOM (Software Bill of Materials)
       # =====================================================
