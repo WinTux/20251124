@@ -3,7 +3,7 @@ import rego.v1
 # No usar tag latest
 deny contains msg if {
     some i
-    input.dockerfile[0][i].Cmd == "FROM"
+    lower(input.dockerfile[0][i].Cmd) == "from"
     endswith(lower(input.dockerfile[0][i].Value), ":latest")
     msg := "No uses tag 'latest' en la instrucción FROM"
 }
@@ -17,5 +17,5 @@ deny contains msg if {
 # Hay al menos un EXPOSE
 any_expose if {
     some i
-    input.dockerfile[0][i].Cmd == "EXPOSE"
+    lower(input.dockerfile[0][i].Cmd) == "expose"
 }

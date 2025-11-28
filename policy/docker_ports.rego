@@ -3,7 +3,7 @@ import rego.v1
 # Validar que los puertos expuestos sean correctos
 deny contains msg if {
     some i
-    input.dockerfile[0][i].Cmd == "EXPOSE"
+    lower(input.dockerfile[0][i].Cmd) == "expose"
     not valid_port(input.dockerfile[0][i].Value)
     msg := sprintf("Puerto %v no es válido, solo se permiten 8081 y 8082", [input.dockerfile[0][i].Value])
 }
