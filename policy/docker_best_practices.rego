@@ -15,7 +15,7 @@ deny contains msg if {
 }
 
 # Hay al menos un EXPOSE
-any_expose if {
+any_expose {
     some i
     input[i].instruction == "EXPOSE"
 }
