@@ -8,5 +8,8 @@ deny contains msg if {
 
 # Hay más de un FROM con stage
 es_multistage if {
-    count([x | x := input[_]; x.instruction == "FROM"]) > 1
+    count([1 |
+        some i
+        lower(input[0][i].Cmd) == "from"
+    ]) > 1
 }
