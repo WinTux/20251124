@@ -1,5 +1,5 @@
 package docker.bestpractices
-
+import rego.v1
 # No usar tag latest
 deny contains msg if {
     some i
