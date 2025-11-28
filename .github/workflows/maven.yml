@@ -68,28 +68,18 @@ jobs:
           | tar zx
           sudo mv conftest /usr/local/bin/
           conftest --version
-      - name: Install OPA
-        run: |
-          curl -L -o opa https://openpolicyagent.org/downloads/v0.68.0/opa_linux_amd64
-          chmod +x opa
-          sudo mv opa /usr/local/bin/
-          opa version
 
       - name: Debug Dockerfile parser output
         run: |
-          opa eval \
-            --format pretty \
-            --data policy \
-            --input producto-service/Dockerfile \
-            'data.debug.output'
+          echo "=== producto-service parsed ==="
+          conftest parse --parser dockerfile producto-service/Dockerfile
 
-          opa eval \
-            --format pretty \
-            --data policy \
-            --input orden-service/Dockerfile \
-            'data.debug.output'
-          conftest test producto-service/Dockerfile --parser dockerfile
-          conftest test orden-service/Dockerfile --parser dockerfile
+          echo "=== orden-service parsed ==="
+          conftest parse --parser dockerfile orden-service/Dockerfile
+      - name: Security Policy Check (Dockerfile)
+        run: |
+          conftest test --parser dockerfile producto-service/Dockerfile
+          conftest test --parser dockerfile orden-service/Dockerfile
       # =====================================================
       # SBOM (Software Bill of Materials)
       # =====================================================
