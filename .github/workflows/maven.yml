@@ -68,6 +68,9 @@ jobs:
           | tar zx
           sudo mv conftest /usr/local/bin/
           conftest --version
+      - name: Validate policies
+        run: |
+          conftest verify --policy policy
 
       - name: Debug Dockerfile parser output
         run: |
