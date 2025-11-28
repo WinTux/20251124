@@ -1,4 +1,4 @@
-package docker.multistage
+package main
 import rego.v1
 # Asegurarse de que se use multistage build
 deny contains msg if {

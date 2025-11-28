@@ -1,4 +1,4 @@
-package docker.no_root
+package main
 import rego.v1
 # No ejecutar como root
 deny contains msg if {

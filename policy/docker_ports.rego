@@ -1,4 +1,4 @@
-package docker.ports
+package main
 import rego.v1
 # Validar que los puertos expuestos sean correctos
 deny contains msg if {
