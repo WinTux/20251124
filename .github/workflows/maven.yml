@@ -69,12 +69,21 @@ jobs:
           sudo mv conftest /usr/local/bin/
           conftest --version
 
-      - name: Security Policy Check (Dockerfile)
+      - name: Debug Dockerfile parser output
         run: |
-          echo "=== producto-service/Dockerfile parsed ==="
-          conftest eval --input producto-service/Dockerfile --parser dockerfile 'input'
-          echo "=== orden-service/Dockerfile parsed ==="
-          conftest eval --input orden-service/Dockerfile --parser dockerfile 'input'
+          opa eval \
+            --format pretty \
+            --data policy \
+            --input producto-service/Dockerfile \
+            'data.debug.output'
+
+          opa eval \
+            --format pretty \
+            --data policy \
+            --input orden-service/Dockerfile \
+            'data.debug.output'
+          conftest test producto-service/Dockerfile --parser dockerfile
+          conftest test orden-service/Dockerfile --parser dockerfile
       # =====================================================
       # SBOM (Software Bill of Materials)
       # =====================================================
