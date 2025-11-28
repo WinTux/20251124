@@ -1,5 +1,5 @@
 package docker.jdk
-
+import rego.v1
 deny contains msg if {
     some i
     input[i].instruction == "FROM"

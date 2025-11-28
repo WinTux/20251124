@@ -1,5 +1,5 @@
 package docker.multistage
-
+import rego.v1
 # Asegurarse de que se use multistage build
 deny contains msg if {
     not es_multistage
