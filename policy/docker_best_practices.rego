@@ -1,14 +1,10 @@
 package main
 import rego.v1
-
 # No usar tag latest
 deny contains msg if {
-    some stage
     some i
-    stage := input.dockerfile[_]
-    instr := stage[i]
-    lower(instr.Cmd) == "from"
-    endswith(lower(instr.Value), ":latest")
+    lower(input.dockerfile[0][i].Cmd) == "from"
+    endswith(lower(input.dockerfile[0][i].Value), ":latest")
     msg := "No uses tag 'latest' en la instrucción FROM"
 }
 
@@ -20,9 +16,6 @@ deny contains msg if {
 
 # Hay al menos un EXPOSE
 any_expose if {
-    some stage
     some i
-    stage := input.dockerfile[_]
-    instr := stage[i]
-    lower(instr.Cmd) == "expose"
+    lower(input.dockerfile[0][i].Cmd) == "expose"
 }
