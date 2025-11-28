@@ -1,7 +1,7 @@
 package docker.bestpractices
 
 # No usar tag latest
-deny contains msg if {
+deny[msg] {
     some i
     input[i].instruction == "FROM"
     endswith(lower(input[i].value), ":latest")
@@ -9,13 +9,12 @@ deny contains msg if {
 }
 
 # Dockerfile debería exponer al menos un puerto
-deny contains msg if {
+deny[msg] {
     not any_expose
     msg := "Dockerfile no expone ningún puerto (EXPOSE)"
 }
 
-# Hay al menos un EXPOSE
-any_expose if {
+any_expose {
     some i
     input[i].instruction == "EXPOSE"
 }
