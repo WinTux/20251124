@@ -68,6 +68,12 @@ jobs:
           | tar zx
           sudo mv conftest /usr/local/bin/
           conftest --version
+      - name: Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/v0.68.0/opa_linux_amd64
+          chmod +x opa
+          sudo mv opa /usr/local/bin/
+          opa version
 
       - name: Debug Dockerfile parser output
         run: |
