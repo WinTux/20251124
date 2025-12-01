@@ -202,3 +202,9 @@ jobs:
           image-ref: 'orden-service-img'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
+      - name: Falla si HIGH/CRITICAL se hallan vulnerabilidades
+        run: |
+          if grep -R "CRITICAL\|HIGH" trivy*; then
+            echo "Vulnerabilities detected. Failing pipeline."
+            exit 1
+          fi || true
