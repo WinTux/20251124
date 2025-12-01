@@ -180,3 +180,10 @@ jobs:
           PRODUCT_SERVICE_URL: http://localhost:8081
           ORDERS_SERVICE_URL: http://localhost:8082
         run: mvn -B test -pl producto-service,orden-service
+      # =====================================================
+      # Build Docker images
+      # =====================================================
+      - name: Build Docker images
+        run: |
+          docker build -t producto-service-img producto-service
+          docker build -t orden-service-img orden-service
