@@ -124,6 +124,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-sbom-1.sarif
+          category: producto-service
 
       - name: Generate SBOM with Trivy (CycloneDX)
         run: trivy fs . --format cyclonedx --output orden-sbom-1.json
@@ -135,6 +136,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-sbom-2.sarif
+          category: orden-service
 
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
