@@ -137,6 +137,11 @@ jobs:
         with:
           sarif_file: trivy-sbom-2.sarif
           category: orden-service
+      - name: Upload SARIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-files
+          path: "*.sarif"
 
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
