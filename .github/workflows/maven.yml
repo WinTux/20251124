@@ -111,6 +111,24 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk sbom test --experimental --file=orden-sbom.json -d || true
+      # ───────────────────────────────
+      # Integrando SBOM con Trivy y reportarlo como SARIF para GitHub Security Dashboard
+      # ───────────────────────────────
+      - name: Trivy SBOM -> SARIF
+        run: trivy sbom producto-sbom.json --format sarif --output trivy-sbom-1.sarif
+
+      - name: Subiendolo con SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-sbom-1.sarif
+
+      - name: Trivy SBOM -> SARIF
+        run: trivy sbom orden-sbom.json --format sarif --output trivy-sbom-2.sarif
+
+      - name: Subiendolo con SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-sbom-2.sarif
 
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
