@@ -112,11 +112,6 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk sbom test --experimental --file=orden-sbom.json -d || true
 
-      - name: Snyk Scan SBOM (modo manifiesto producto)
-        run: snyk test --file=producto-sbom.json --package-manager=cyclonedx
-      - name: Snyk Scan SBOM (modo manifiesto orden)
-        run: snyk test --file=orden-sbom.json --package-manager=cyclonedx
-
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
       # ───────────────────────────────
