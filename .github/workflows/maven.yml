@@ -129,7 +129,7 @@ jobs:
         run: trivy fs . --format cyclonedx --output orden-sbom-1.json
 
       - name: Trivy SBOM -> SARIF
-        run: trivy sbom orden-sbom-2.json --format sarif --output trivy-sbom-2.sarif
+        run: trivy sbom orden-sbom-1.json --format sarif --output trivy-sbom-2.sarif
 
       - name: Subiendolo con SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
