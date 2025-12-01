@@ -97,7 +97,7 @@ jobs:
       - name: Snyk SBOM Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk sbom test --experimental --file=producto-sbom.json
+        run: snyk sbom test --experimental --file=producto-sbom.json -d
 
 
       - name: SBOM orden-service
@@ -110,7 +110,7 @@ jobs:
       - name: Snyk SBOM Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk sbom test --experimental --file=orden-sbom.json
+        run: snyk sbom test --experimental --file=orden-sbom.json -d
 
       # ───────────────────────────────
       # Levantar PRODUCTO-SERVICE
