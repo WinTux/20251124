@@ -214,7 +214,12 @@ jobs:
           scan-type: 'config'
           scan-ref: '.'
           severity: 'HIGH,CRITICAL'
-      - name: Falco rules lint
-        uses: falcosecurity/falcoctl@master
-        with:
-          command: "rules lint"
+      - name: Download falcoctl
+        run: |
+          curl -sLO https://falcoctl.s3.amazonaws.com/latest/falcoctl-linux-amd64
+          chmod +x falcoctl-linux-amd64
+          mv falcoctl-linux-amd64 /usr/local/bin/falcoctl
+
+      - name: Lint Falco rules
+        run: |
+          falcoctl rules lint
