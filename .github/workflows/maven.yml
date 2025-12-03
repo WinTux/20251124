@@ -187,3 +187,24 @@ jobs:
         run: |
           docker build -t producto-service-img producto-service
           docker build -t orden-service-img orden-service
+      - name: Trivy Image Scan - Producto Service
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: image
+          image-ref: 'producto-service-img'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+
+      - name: Trivy Image Scan - Orden Service
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: image
+          image-ref: 'orden-service-img'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+      - name: Falla si HIGH/CRITICAL se hallan vulnerabilidades
+        run: |
+          if grep -R "CRITICAL\|HIGH" trivy*; then
+            echo "Vulnerabilities detected. Failing pipeline."
+            exit 1
+          fi || true
