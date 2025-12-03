@@ -225,4 +225,4 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/rules:/rules \
             falcosecurity/falco:latest \
-            falco --list --rules=/rules
+            falco --list -r /rules/springboot-runtime.yaml
