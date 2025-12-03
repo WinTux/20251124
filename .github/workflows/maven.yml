@@ -208,3 +208,9 @@ jobs:
             echo "Vulnerabilities detected. Failing pipeline."
             exit 1
           fi || true
+      - name: Trivy - IaC Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
