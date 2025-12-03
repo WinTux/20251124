@@ -223,6 +223,6 @@ jobs:
       - name: Lint Falco rules via Docker
         run: |
           docker run --rm \
-            -v $PWD/rules:/rules \
+            -v ${{ github.workspace }}/rules:/rules \
             falcosecurity/falco:latest \
             falco --validate -r /rules/springboot-runtime.yaml
