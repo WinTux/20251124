@@ -220,6 +220,10 @@ jobs:
           chmod +x falcoctl-linux-amd64
           mv falcoctl-linux-amd64 /usr/local/bin/falcoctl
 
-      - name: Lint Falco rules
+      - name: Lint Falco rules via Docker
         run: |
-          falcoctl rules lint
+          docker run --rm \
+            -v ${{ github.workspace }}/rules:/rules \
+            falco/falcoctl:latest \
+            rules lint /rules
+
