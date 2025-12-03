@@ -220,9 +220,11 @@ jobs:
           chmod +x falcoctl-linux-amd64
           mv falcoctl-linux-amd64 /usr/local/bin/falcoctl
 
-      - name: Lint Falco rules via Docker
+      - name: Validate Falco rules
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/rules:/rules \
-            falcosecurity/falco:latest \
-            falco --validate -r /rules/springboot-runtime.yaml
+          for file in ${{ github.workspace }}/rules/*.yaml; do
+            docker run --rm \
+              -v ${{ github.workspace }}/rules:/rules \
+              falcosecurity/falco:latest \
+              falco --validate -r /rules/$(basename $file)
+          done
