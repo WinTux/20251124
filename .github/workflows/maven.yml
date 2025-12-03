@@ -224,5 +224,5 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/rules:/rules \
-            ghcr.io/falcosecurity/falcoctl:latest \
+            falcosecurity/falco:latest \
             rules lint /rules
