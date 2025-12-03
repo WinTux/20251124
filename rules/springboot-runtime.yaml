@@ -1,0 +1,107 @@
+# ==========================================
+# Falco Rules for Spring Boot Microservices
+# ==========================================
+
+# ---------------
+# List of allowed processes
+# ---------------
+springboot_allowed_processes:
+  items:
+    - java
+    - java.exe
+    - java.bin
+    - /usr/bin/java
+  description: Allowed processes inside our Spring Boot containers
+  condition: evt.arg.procname in (__springboot_allowed_processes)
+  macro: __springboot_allowed_processes
+
+
+# --------------------------------------
+# Rule 1: Detect interactive shell inside container
+# --------------------------------------
+- rule: Shell Inside Container
+  desc: Detect exec of sh/bash inside a running Spring Boot container
+  condition: >
+    container.id != host and
+    proc.name in (bash, sh, ash, zsh) and
+    evt.type = execve
+  output: >
+    🚨 Shell detected inside container (proc=%proc.name user=%user.name container=%container.id image=%container.image)
+  priority: CRITICAL
+  tags: [container, process, security]
+
+
+# --------------------------------------
+# Rule 2: Suspicious command execution inside container
+# --------------------------------------
+- rule: Suspicious Process Execution in Spring Boot Container
+  desc: Detect execution of tools not normally found in a Java runtime
+  condition: >
+    container.id != host and
+    evt.type = execve and
+    proc.name in (curl, wget, nc, netcat, socat, tcpdump, nmap, bash, sh, ssh)
+  output: >
+    ⚠ Suspicious process executed in container (proc=%proc.name args=%proc.args container=%container.id image=%container.image)
+  priority: HIGH
+  tags: [container, runtime, attack]
+
+
+# --------------------------------------
+# Rule 3: Detect modification of /etc inside container
+# --------------------------------------
+- rule: Write to /etc from container
+  desc: Detect attempts to write into /etc/* from Spring Boot containers
+  condition: >
+    container.id != host and
+    evt.type in (open,openat,creat) and
+    fd.name startswith "/etc" and
+    evt.arg.flags contains O_WRONLY
+  output: >
+    🚨 Writing to /etc inside container (file=%fd.name user=%user.name proc=%proc.name container=%container.id)
+  priority: CRITICAL
+  tags: [filesystem, container, privilege-escalation]
+
+
+# --------------------------------------
+# Rule 4: Detect access to docker socket (escape attempt)
+# --------------------------------------
+- rule: Access Docker Socket Inside Container
+  desc: Access to docker.sock means possible escape attempt
+  condition: >
+    container.id != host and
+    fd.name = "/var/run/docker.sock" and
+    evt.type in (open,openat)
+  output: >
+    🚨 Container accessing docker.sock (proc=%proc.name user=%user.name container=%container.id)
+  priority: CRITICAL
+  tags: [escape, privilege-escalation, container]
+
+
+# --------------------------------------
+# Rule 5: Sensitive file access
+# --------------------------------------
+- rule: Read Sensitive Files
+  desc: Detect reading secrets or private keys inside container
+  condition: >
+    container.id != host and
+    evt.type in (open,openat) and
+    fd.name in ("/etc/shadow", "/etc/passwd", "/root/.ssh/id_rsa", "/run/secrets", "/var/run/secrets/kubernetes.io/serviceaccount/token")
+  output: >
+    ⚠ Sensitive file read inside container (file=%fd.name proc=%proc.name container=%container.id)
+  priority: HIGH
+  tags: [secrets, filesystem, container]
+
+
+# --------------------------------------
+# Rule 6: Unexpected child processes from Java/Spring Boot
+# --------------------------------------
+- rule: Java Spawning Unexpected Processes
+  desc: Spring Boot apps normally do not spawn OS sub-processes
+  condition: >
+    container.id != host and
+    proc.pname in (__springboot_allowed_processes) and
+    not proc.name in (java, java.bin, java.exe)
+  output: >
+    ⚠ Suspicious: Java spawned a child process (parent=%proc.pname child=%proc.name args=%proc.args container=%container.id)
+  priority: MEDIUM
+  tags: [springboot, runtime, suspicious]
