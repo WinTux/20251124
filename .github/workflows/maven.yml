@@ -225,4 +225,4 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/rules:/rules \
             falcosecurity/falco:latest \
-            falco --rules /rules --dry-run
+            falco --list --rules=/rules
