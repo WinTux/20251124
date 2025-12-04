@@ -226,3 +226,48 @@ jobs:
             -v ${{ github.workspace }}/rules:/rules \
             falcosecurity/falco:latest \
             falco --dry-run -r /rules/springboot-runtime.yaml
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ""
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      # ------------------------------
+      # TAG + PUSH A ECR
+      # ------------------------------
+      - name: Push Producto to ECR
+        run: |
+          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG=${{ github.sha }}
+          docker tag producto-service-img:latest $ECR_REGISTRY/producto-service:$IMAGE_TAG
+          docker push $ECR_REGISTRY/producto-service:$IMAGE_TAG
+
+      - name: Push Orden to ECR
+        run: |
+          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG=${{ github.sha }}
+          docker tag orden-service-img:latest $ECR_REGISTRY/orden-service:$IMAGE_TAG
+          docker push $ECR_REGISTRY/orden-service:$IMAGE_TAG
+      # ------------------------------
+      # ACTUALIZAR ECS SERVICE
+      # ------------------------------
+      - name: Deploy to ECS (producto-service)
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ecs/producto-task.json
+          service: producto-service
+          cluster: microservicios-cluster
+          wait-for-service-stability: true
+
+      - name: Deploy to ECS (orden-service)
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ecs/orden-task.json
+          service: orden-service
+          cluster: microservicios-cluster
+          wait-for-service-stability: true
