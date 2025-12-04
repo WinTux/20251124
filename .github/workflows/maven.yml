@@ -214,24 +214,15 @@ jobs:
           scan-type: 'config'
           scan-ref: '.'
           severity: 'HIGH,CRITICAL'
-      - name: Download falcoctl
+      - name: Lint Falco rules via Docker
         run: |
-          curl -sLO https://falcoctl.s3.amazonaws.com/latest/falcoctl-linux-amd64
-          chmod +x falcoctl-linux-amd64
-          mv falcoctl-linux-amd64 /usr/local/bin/falcoctl
-
+          docker run --rm \
+            -v ${{ github.workspace }}/rules:/rules \
+            falcosecurity/falco:latest \
+            falco --list -r /rules/springboot-runtime.yaml
       - name: Validate Falco custom rules YAML
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/rules:/rules \
             falcosecurity/falco:latest \
             falco --dry-run -r /rules/springboot-runtime.yaml
-      - name: Run Falco rules against running containers
-        run: |
-          docker run --rm --privileged \
-            -v /var/run/docker.sock:/host/var/run/docker.sock \
-            -v ${{ github.workspace }}/rules:/rules \
-            falcosecurity/falco:latest \
-            falco -r /rules/springboot-runtime.yaml
-
-
