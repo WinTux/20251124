@@ -228,8 +228,9 @@ jobs:
             falco --dry-run -r /rules/springboot-runtime.yaml
       - name: Run Falco rules against running containers
         run: |
-          docker run --rm -it \
+          docker run --rm \
             -v /var/run/docker.sock:/host/var/run/docker.sock \
             -v ${{ github.workspace }}/rules:/rules \
             falcosecurity/falco:latest \
             falco -r /rules/springboot-runtime.yaml
+
