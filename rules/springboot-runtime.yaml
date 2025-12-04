@@ -1,7 +1,6 @@
 # ==========================================
 # Reglas Falco para Microservicios Spring Boot
 # ==========================================
-
 # ---------------
 # Lista de procesos permitidos
 # ---------------
@@ -11,18 +10,12 @@
     - java.exe
     - java.bin
     - /usr/bin/java
-  description: Procesos permitidos dentro de nuestros contenedores Spring Boot
   # Comentario: Define los procesos Java estándar que se esperan en el contenedor
-
-- macro: allowed_springboot_procs
-  condition: proc.name in (springboot_allowed_processes)
-  # Comentario: Macro para procesos permitidos de Spring Boot
-
 # --------------------------------------
 # Regla 1: Detectar shell interactivo dentro del contenedor
 # --------------------------------------
 - rule: Shell_Dentro_Contenedor
-  desc: Detecta la ejecución de sh/bash dentro de un contenedor Spring Boot
+  desc: Detecta la ejecución de sh/bash dentro de un contenedor Spring Boot.
   condition: >
     container and (evt.type in (execve, execveat)) and
     proc.name in (bash, sh, ash, zsh)
@@ -31,41 +24,38 @@
   priority: CRITICAL
   tags: [container, process, security]
   # Comentario: Evita que alguien abra una shell interactiva en el contenedor
-
 # --------------------------------------
 # Regla 2: Ejecución sospechosa de comandos
 # --------------------------------------
 - rule: Procesos_Sospechosos_En_Contenedor_SpringBoot
-  desc: Detecta la ejecución de herramientas que normalmente no están en un runtime Java
+  desc: Detecta la ejecución de herramientas que normalmente no están en un runtime Java.
   condition: >
     container and (evt.type in (execve, execveat)) and
     proc.name in (curl, wget, nc, netcat, socat, tcpdump, nmap, bash, sh, ssh)
   output: >
     Proceso sospechoso ejecutado en contenedor (proc=%proc.name args=%proc.args container=%container.id image=%container.image)
-  priority: HIGH
+  priority: WARNING
   tags: [container, runtime, attack]
   # Comentario: Detecta comandos de red o utilidades que podrían usarse para ataques desde el contenedor
-
 # --------------------------------------
 # Regla 3: Modificación de /etc dentro del contenedor
 # --------------------------------------
 - rule: Escritura_en_etc_en_Contenedor
-  desc: Detecta intentos de escribir en /etc/* desde contenedores Spring Boot
+  desc: Detecta intentos de escribir en /etc/* desde contenedores Spring Boot.
   condition: >
     container and (evt.type in (open, openat, creat, openat2)) and
     fd.name startswith "/etc" and
     evt.arg.flags contains O_WRONLY
   output: >
     Escritura en /etc dentro del contenedor (archivo=%fd.name user=%user.name proc=%proc.name container=%container.id)
-  priority: CRITICAL
+  priority: ERROR
   tags: [filesystem, container, privilege_escalation]
   # Comentario: Evita cambios críticos en archivos de configuración del sistema
-
 # --------------------------------------
 # Regla 4: Acceso al socket de Docker (posible escape)
 # --------------------------------------
 - rule: Acceso_Docker_Socket_En_Contenedor
-  desc: El acceso a docker.sock puede indicar un intento de escape del contenedor
+  desc: El acceso a docker.sock puede indicar un intento de escape del contenedor.
   condition: >
     container and
     fd.name = "/var/run/docker.sock" and
@@ -75,31 +65,29 @@
   priority: CRITICAL
   tags: [escape, privilege_escalation, container]
   # Comentario: Detecta intentos de controlar Docker desde dentro del contenedor
-
 # --------------------------------------
 # Regla 5: Acceso a archivos sensibles
 # --------------------------------------
 - rule: Lectura_De_Archivos_Sensibles_En_Contenedor
-  desc: Detecta la lectura de secretos o claves privadas dentro del contenedor
+  desc: Detecta la lectura de secretos o claves privadas dentro del contenedor.
   condition: >
     container and (evt.type in (open, openat, openat2)) and
     fd.name in ("/etc/shadow", "/etc/passwd", "/root/.ssh/id_rsa", "/run/secrets", "/var/run/secrets/kubernetes.io/serviceaccount/token")
   output: >
     Lectura de archivo sensible dentro del contenedor (archivo=%fd.name proc=%proc.name container=%container.id)
-  priority: HIGH
+  priority: WARNING
   tags: [secrets, filesystem, container]
   # Comentario: Evita exposición de contraseñas o tokens de Kubernetes
-
 # --------------------------------------
 # Regla 6: Procesos hijos inesperados desde Java/Spring Boot
 # --------------------------------------
 - rule: Java_Generando_Procesos_Inesperados
-  desc: Las aplicaciones Spring Boot normalmente no generan subprocesos del sistema operativo inesperados
+  desc: Las aplicaciones Spring Boot normalmente no generan subprocesos del sistema operativo inesperados.
   condition: >
     container and proc.pname in (springboot_allowed_processes) and
     not proc.name in (springboot_allowed_processes)
   output: >
     Sospechoso: Java generó un proceso hijo (padre=%proc.pname hijo=%proc.name args=%proc.args container=%container.id)
-  priority: MEDIUM
+  priority: NOTICE
   tags: [springboot, runtime, suspicious]
   # Comentario: Detecta procesos adicionales que podrían indicar un comportamiento malicioso
