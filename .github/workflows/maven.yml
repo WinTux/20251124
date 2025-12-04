@@ -225,4 +225,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}/rules:/rules \
             falcosecurity/falco:latest \
-            falco --list -r /rules/springboot-runtime.yaml
+            falco --list \
+                  -r /rules/springboot-runtime.yaml \
+                  --print-rules-filenames \
+                  --disable-source syscall
