@@ -229,7 +229,6 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ""
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -237,8 +236,23 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
       # ------------------------------
-      # TAG + PUSH A ECR
+      # BUILD PRODUCTO
+      # ------------------------------
+      #- name: Build producto-service
+      #  run: |
+      #    docker build -t producto-service-img ./producto-service
+
+      # ------------------------------
+      # BUILD ORDEN
+      # ------------------------------
+      #- name: Build orden-service
+      #  run: |
+      #    docker build -t orden-service-img ./orden-service
+
+      # ------------------------------
+      # PUSH A ECR
       # ------------------------------
       - name: Push Producto to ECR
         run: |
@@ -253,21 +267,41 @@ jobs:
           IMAGE_TAG=${{ github.sha }}
           docker tag orden-service-img:latest $ECR_REGISTRY/orden-service:$IMAGE_TAG
           docker push $ECR_REGISTRY/orden-service:$IMAGE_TAG
+
       # ------------------------------
-      # ACTUALIZAR ECS SERVICE
+      # RENDER TASK DEFINITIONS
       # ------------------------------
-      - name: Deploy to ECS (producto-service)
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      - name: Render Producto Task Definition
+        id: render-producto
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ecs/producto-task.json
+          container-name: producto-service
+          image: ${{ steps.login-ecr.outputs.registry }}/producto-service:${{ github.sha }}
+
+      - name: Render Orden Task Definition
+        id: render-orden
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ecs/orden-task.json
+          container-name: orden-service
+          image: ${{ steps.login-ecr.outputs.registry }}/orden-service:${{ github.sha }}
+
+      # ------------------------------
+      # DEPLOY A ECS
+      # ------------------------------
+      - name: Deploy Producto
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-producto.outputs.task-definition }}
           service: producto-service
           cluster: microservicios-cluster
           wait-for-service-stability: true
 
-      - name: Deploy to ECS (orden-service)
+      - name: Deploy Orden
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          task-definition: ecs/orden-task.json
+          task-definition: ${{ steps.render-orden.outputs.task-definition }}
           service: orden-service
           cluster: microservicios-cluster
           wait-for-service-stability: true
